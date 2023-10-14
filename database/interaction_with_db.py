@@ -81,14 +81,29 @@ async def get_balance(tg_id):
 
 async def get_product_name(id):
     async with aiosqlite.connect("menu.sqlite") as con:
-        cursor = await con.execute(f"SELECT name FROM products WHERE product_id=VALUE (?)", (id,))
-        result = await cursor.fetchone()
+        if id.isdigit():
+            cursor = await con.execute(f"SELECT name FROM products WHERE product_id={id}")
+            result = await cursor.fetchone()
+            await cursor.close()
+            return [1, result[0]]
+        else:
+            return [0, '*аргумент функции "/buy" должен быть целым числом*']
+
+
+async def get_menu_for_photo():
+    async with aiosqlite.connect("menu.sqlite") as con:
+        cursor = await con.execute("SELECT * FROM products")
+        res = await cursor.fetchall()
         await cursor.close()
-        return result[0]
+        res_1 = []
+        for i in res:
+            res_1.append([i[0], i[1], i[2], i[3]])
+        return res_1
 
-async def main():
-    result = await get_product_name(2)
-    print(result)
 
-
-asyncio.run(main())
+# async def main():
+#     result = await get_product_name(2)
+#     print(result)
+#
+#
+# asyncio.run(main())

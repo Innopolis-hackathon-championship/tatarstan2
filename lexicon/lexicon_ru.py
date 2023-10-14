@@ -7,7 +7,7 @@ LEXICON_RU: dict[str, str] = {
     'purchase_accept': 'Ваш заказ принят, номер заказа: id',
     'purchase_reject': 'К сожалению, item нет в наличии, но вы можете заказать что-нибудь другое',
     '/feedback': 'Можете написать свой отзыв',
-    'access_denied': 'Вам отказано в доступе к боту',
+    'access_denied': 'Вы не можете этого сделать',
 }
 
 LEXICON_MENU_COMMANDS_RU: dict[str, str] = {

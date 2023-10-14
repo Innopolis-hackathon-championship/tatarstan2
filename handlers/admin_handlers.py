@@ -48,8 +48,8 @@ async def process_start_command(message: Message):
 
 
 @router_admin.callback_query(F.data == 'add_item_button_pressed', StateFilter(default_state))
-async def feedback_button_pressed(callback: CallbackQuery, message: Message, state: FSMContext):
-    await message.answer(text='Введите название товара')
+async def add_new_item(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(text='Введите название товара')
     await state.set_state(FSMFillForm.fill_name)
 
 
@@ -63,28 +63,25 @@ async def process_name_sent(message: Message, state: FSMContext):
 
 
 @router_admin.message(StateFilter(FSMFillForm.fill_cost))
-async def process_age_sent(message: Message, state: FSMContext):
+async def confirmation_of_adding(message: Message, state: FSMContext):
     global new_cost
     new_cost = int(message.text)
-    await state.update_data(cost=new_cost)
-    await message.answer(text='Введите количество товара')
+    await state.update_data(cost=str(new_cost))
+    await message.answer(text='Вы уверены, что хотите добавить это товар?', reply_markup=kb_confirmation.as_markup())
     await state.set_state(FSMFillForm.fill_break)
 
 
-@router_admin.message(StateFilter(FSMFillForm.fill_break))
-async def process_age_sent(message: Message):
-    await message.answer(text='Вы уверены, что хотите добавить это товар?', reply_markup=kb_confirmation)
-
-
-@router_admin.message(F.data == 'confirmed')
-async def append_item(callback: CallbackQuery, state: FSMContext):
+@router_admin.callback_query(F.data == 'confirmed', StateFilter(FSMFillForm.fill_break))
+async def append_item_(callback: CallbackQuery, state: FSMContext):
+    print('Sucsess')
     global new_name, new_cost
     await callback.message.edit_text(text=f'Товар был добавлен')
-    c.execute("INSERT INTO products VALUES (new_name, new_cost)")
+    c.execute("INSERT INTO products VALUES (?, ?)", (new_name, new_cost))
     await state.clear()
 
 
-@router_admin.message(F.data == 'canceled')
+@router_admin.callback_query(F.data == 'canceled', StateFilter(FSMFillForm.fill_break))
 async def skip_item(callback: CallbackQuery, state: FSMContext):
+    print('fsaf')
     await callback.message.edit_text(text=f'Товар не был добавлен')
     await state.clear()
