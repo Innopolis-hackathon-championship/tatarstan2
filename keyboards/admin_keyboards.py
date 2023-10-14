@@ -2,15 +2,24 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-new_button = InlineKeyboardButton(
+add_item_button = InlineKeyboardButton(
     text='Добавить товар',
-    callback_data='new_button_pressed'
+    callback_data='add_item_button_pressed'
 )
 
-restart_button = InlineKeyboardButton(
-    text='Сбросить',
-    callback_data='restart_button_pressed'
+confirm_button = InlineKeyboardButton(
+    text='Подтвердить✅',
+    callback_data='confirmed'
 )
 
-kb_new_item = InlineKeyboardBuilder()
-kb_new_item.row(*[new_button, restart_button], width=2)
+cancel_button = InlineKeyboardButton(
+    text='Сбросить❌',
+    callback_data='canceled'
+)
+
+kb_admin_main = InlineKeyboardBuilder()
+kb_admin_main.row(add_item_button)
+
+
+kb_confirmation = InlineKeyboardBuilder()
+kb_confirmation.row(*[confirm_button, cancel_button], width=2)
