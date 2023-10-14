@@ -3,7 +3,7 @@ from aiogram.dispatcher.router import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from database.interaction_with_db import get_balance, get_product_name, get_last_10_messages, add_message, get_korz
-from database.interaction_with_db import del_korz, insert_into_korz,
+from database.interaction_with_db import del_korz, insert_into_korz
 from filters.get_access import IsAllowed
 from keyboards.user_keyboards import kb_main_builder, kb_feedback_builder
 from lexicon.lexicon_ru import LEXICON_RU
@@ -44,9 +44,10 @@ async def process_balance_command(message: Message):
     print(res)
     if res[0]:
         await message.answer(text=f"{res[1]} добавлен в корзину")
-
+        await insert_into_korz(message.from_user.id, res[1])
     else:
         await message.answer(text=res[1])
+
 
 
 @router_user.callback_query(F.data == 'home_button_pressed')

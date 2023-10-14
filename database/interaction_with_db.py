@@ -120,7 +120,7 @@ async def get_last_10_messages():
         return messages
 
 
-async def insert_into_korz(name):
+async def insert_into_korz(tg_id, name):
     async with aiosqlite.connect("korz.sqlite") as con:
         try:
             cursor = await con.execute(f"SELECT products FROM korzina WHERE user_id ={tg_id}")

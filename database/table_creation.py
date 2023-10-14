@@ -52,3 +52,5 @@ def create_korzina():
                         products text)""")
     db.commit()
     db.close()
+
+create_korzina()
