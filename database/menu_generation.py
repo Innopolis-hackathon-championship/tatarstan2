@@ -1,6 +1,6 @@
 from math import ceil, sqrt
 from PIL import Image, ImageDraw, ImageFont
-from interaction_with_db import get_menu_for_photo
+# from interaction_with_db import get_menu_for_photo
 import asyncio
 
 
@@ -59,7 +59,7 @@ def create_menu(menu_table):
             final_photo.paste(text,
                               (dif2 * line + baze * (line - 1) - ceil(delta),
                                dif * column + (baze + add_text) * (column - 1) + baze))
-            final_photo.save("res.jpg")
+            final_photo.save("res_menu.jpg")
         else:
             # final_photo =
             final_photo.paste(prod_im,
@@ -69,16 +69,16 @@ def create_menu(menu_table):
             final_photo.paste(text,
                               (dif * line + baze * (line - 1) - ceil(delta),
                                dif * column + (baze + add_text) * (column - 1) + baze))
-            final_photo.save("res.jpg")
+            final_photo.save("res_menu.jpg")
         if line == inline_n:
             line = 0
             column += 1
         line += 1
 
 
-async def main():
-    result = await get_menu_for_photo()
-    create_menu(result)
-
-
-asyncio.run(main())
+# async def main():
+#     result = await get_menu_for_photo()
+#     create_menu(result)
+#
+#
+# asyncio.run(main())

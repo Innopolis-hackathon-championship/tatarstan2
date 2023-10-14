@@ -101,6 +101,55 @@ async def get_menu_for_photo():
         return res_1
 
 
+async def add_message(text):
+    async with aiosqlite.connect("feedback.sqlite") as con:
+        cursor = con.execute('''
+            INSERT INTO messages (text)
+            VALUES (?)''', (text,))
+        con.commit()
+
+
+async def get_last_10_messages():
+    async with aiosqlite.connect("feedback.sqlite") as con:
+        con.execute('''
+            SELECT text FROM messages
+            ORDER BY ROWID DESC
+            LIMIT 3
+        ''')
+        messages = con.fetchall()
+        return messages
+
+
+async def insert_into_korz(name):
+    async with aiosqlite.connect("korz.sqlite") as con:
+        try:
+            cursor = await con.execute(f"SELECT products FROM korzina WHERE user_id ={tg_id}")
+            res = await cursor.fetchone()
+            res_1 = []
+            for i in res:
+                res_1.append(i)
+            res_1.append(name)
+        except:
+            await con.execute(f"INSERT OR REPLACE {name} INTO products")
+            await con.commit()
+            return None
+        await con.execute(f"INSERT OR REPLACE {name} INTO products")
+        await con.commit()
+
+
+async def get_korz(tg_id):
+    async with aiosqlite.connect("korz.sqlite") as con:
+        cursor = await con.execute(f"SELECT products FROM korzina WHERE user_id ={tg_id}")
+        res = await cursor.fetchone()
+        return ', '.join(res)
+
+
+async def del_korz(tg_id):
+    async with aiosqlite.connect("korz.sqlite") as con:
+        cursor = await con.execute(f"delete * FROM korzina WHERE user_id ={tg_id}")
+        res = await cursor.fetchone()
+        return ', '.join(res[0])
+
 # async def main():
 #     result = await get_product_name(2)
 #     print(result)

@@ -12,15 +12,6 @@ def create_users_db():
     db.close()
 
 
-def create_feedback():
-    db = sqlite3.connect('feedback.sqlite')
-    cursor = db.cursor()
-    cursor.execute("""CREATE TABLE feedbacks (
-            otziv text)""")
-    db.commit()
-    db.close()
-
-
 def create_info():
     db = sqlite3.connect('info.sqlite')
     cursor = db.cursor()
@@ -38,9 +29,26 @@ def create_menu():
                     product_id integer,
                     name text,
                     price int,
-                    number int)""")
+                    link text)""")
     db.commit()
     db.close()
 
 
-create_feedback()
+async def create_messages():
+    db = sqlite3.connect('users_feedback.sqlite')
+    c = db.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS messages (
+        text TEXT
+    )''')
+    db.commit()
+    db.close()
+
+
+def create_korzina():
+    db = sqlite3.connect('korz.sqlite')
+    cursor = db.cursor()
+    cursor.execute("""CREATE TABLE korzina (
+                        user_id integer,
+                        products text)""")
+    db.commit()
+    db.close()

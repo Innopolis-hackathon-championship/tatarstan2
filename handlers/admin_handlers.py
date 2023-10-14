@@ -1,32 +1,24 @@
 from aiogram import F
 from aiogram.dispatcher.router import Router
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.state import default_state, State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from filters.admin import IsAdmin
 from keyboards.admin_keyboards import kb_admin_main, kb_confirmation
+from database.menu_generation import create_menu
 import sqlite3
 
 # from keyboards.keyboards import
 # from lexicon.lexicon_ru import LEXICON_RU, BUTTONS
 
 router_admin: Router = Router()
+router_admin.message.filter(IsAdmin())
 
 db = sqlite3.connect('users_id.sqlite')
 
 c = db.cursor()
-
-
-def create_menu():
-    db = sqlite3.connect('menu.sqlite')
-    cursor = db.cursor()
-    cursor.execute("""CREATE TABLE products (
-                    product_id integer,
-                    name text,
-                    price int)""")
-    db.commit()
-    db.close()
 
 
 class FSMFillForm(StatesGroup):
@@ -77,11 +69,12 @@ async def append_item_(callback: CallbackQuery, state: FSMContext):
     global new_name, new_cost
     await callback.message.edit_text(text=f'Товар был добавлен')
     c.execute("INSERT INTO products VALUES (?, ?)", (new_name, new_cost))
+    db.commit()
+    create_menu()
     await state.clear()
 
 
 @router_admin.callback_query(F.data == 'canceled', StateFilter(FSMFillForm.fill_break))
 async def skip_item(callback: CallbackQuery, state: FSMContext):
-    print('fsaf')
     await callback.message.edit_text(text=f'Товар не был добавлен')
     await state.clear()
