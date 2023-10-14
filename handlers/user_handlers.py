@@ -6,7 +6,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from database.interaction_with_db import get_balance
 from filters.get_access import IsAllowed
-from keyboards.keyboards import kb_main_builder, kb_feedback_builder, kb_balance_builder
+from keyboards.user_keyboards import kb_main_builder, kb_feedback_builder, kb_balance_builder
 from lexicon.lexicon_ru import LEXICON_RU
 
 router_user: Router = Router()
