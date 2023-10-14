@@ -1,14 +1,15 @@
+from unittest.mock import call
+
 from aiogram import F
 from aiogram.dispatcher.router import Router
-from aiogram.filters import Command, CommandStart
-from aiogram.types import Message, callback_query, CallbackQuery
+from aiogram.filters import CommandStart
+from aiogram.types import Message, CallbackQuery
+from database.interaction_with_db import get_balance
 from filters.get_access import IsAllowed
-from keyboards.keyboards import kb_main_builder, kb_feedback
+from keyboards.keyboards import kb_main_builder, kb_feedback_builder, kb_balance_builder
 from lexicon.lexicon_ru import LEXICON_RU
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 router_user: Router = Router()
-ADMIN_LIST: list[int] = [922787101, 939434784, 846030183, 828788571]
 
 
 @router_user.message(CommandStart(), IsAllowed())
@@ -16,14 +17,22 @@ async def process_start_command(message: Message):
     await message.answer(text=LEXICON_RU['/start'], reply_markup=kb_main_builder.as_markup())
 
 
-@router_user.callback_query(F.data == 'balance_button_pressed')
-async def feedback_button_pressed(callback: CallbackQuery):
-    await callback.message.edit_text(text='тут будет текст для баланса')
-
-
 @router_user.callback_query(F.data == 'feedback_button_pressed')
 async def feedback_button_pressed(callback: CallbackQuery):
-    await callback.message.edit_text(text='тут будет текст для фидбэка', reply_markup=kb_feedback)
+    await callback.message.edit_text(text='тут будет текст для фидбэка', reply_markup=kb_feedback_builder.as_markup())
+
+
+@router_user.callback_query(F.data == 'balance_button_pressed', lambda call: True)
+async def feedback_button_pressed(callback: CallbackQuery):
+    bill = await get_balance(call.from_user.id)
+    print(type(callback.message.from_user.id), call.from_user.id)
+    await callback.message.edit_text(text=f'Ваш баланс составляет {bill}',
+                                     reply_markup=kb_balance_builder.as_markup())
+
+
+@router_user.callback_query(F.data == 'home_button_pressed')
+async def feedback_button_pressed(callback: CallbackQuery):
+    await callback.message.edit_text(text=LEXICON_RU['/start'], reply_markup=kb_main_builder.as_markup())
 
 # @router_user.callback_query_handler(lambda c: c.data == "reg")  # править
 # async def butt_erection(call: callback_query):
@@ -31,7 +40,7 @@ async def feedback_button_pressed(callback: CallbackQuery):
 #     # регистрация через телефон, потом валидация через куаркод
 #     # def some_func_1(qr-code):
 #     #       ... отправляет айдишник и телефон в базу данных, пока хз зачем - надо обсудить
-#     # если успешно
+#     # если успешно`
 #     menu_butt = InlineKeyboardButton("Меню", callback_data='show_menu')
 #
 #     markup.add(menu_butt)
