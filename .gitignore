@@ -8,5 +8,6 @@ __pycache__/
 # DataBase
 *.sqlite
 
-
 tests/
+
+.idea
