@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from core.config import Config, load_config
-from handlers import user_handlers, admin_handlers
+from handlers import user_handlers, admin_handlers, other_handlers
 from lexicon.lexicon_ru import LEXICON_MENU_COMMANDS_RU
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,8 @@ async def main():
     dp: Dispatcher = Dispatcher()
 
     dp.include_router(user_handlers.router_user)
-    # dp.include_router(_handlers.router_admin)
+    dp.include_router(admin_handlers.router_admin)
+    dp.include_router(other_handlers.router_other)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

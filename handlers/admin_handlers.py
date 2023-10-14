@@ -24,8 +24,7 @@ def create_menu():
     cursor.execute("""CREATE TABLE products (
                     product_id integer,
                     name text,
-                    price int,
-                    number int)""")
+                    price int)""")
     db.commit()
     db.close()
 
@@ -34,6 +33,10 @@ class FSMFillForm(StatesGroup):
     fill_name = State()
     fill_cost = State()
     fill_break = State()
+
+
+new_name = ''
+new_cost = 0
 
 
 @router_admin.message(CommandStart(), StateFilter(default_state))
@@ -52,20 +55,36 @@ async def feedback_button_pressed(callback: CallbackQuery, message: Message, sta
 
 @router_admin.message(StateFilter(FSMFillForm.fill_name))
 async def process_name_sent(message: Message, state: FSMContext):
-    await state.update_data(name=message.text)
+    global new_name
+    new_name = message.text
+    await state.update_data(name=new_name)
     await message.answer(text='Введите стоимость товара')
     await state.set_state(FSMFillForm.fill_cost)
 
 
 @router_admin.message(StateFilter(FSMFillForm.fill_cost))
 async def process_age_sent(message: Message, state: FSMContext):
-    await state.update_data(cost=message.text)
+    global new_cost
+    new_cost = int(message.text)
+    await state.update_data(cost=new_cost)
     await message.answer(text='Введите количество товара')
-    await state.set_state(FSMFillForm.fill_count) # !!!!!!!!!!!!!!!
-
-
-@router_admin.message(StateFilter(FSMFillForm.fill_count))
-async def process_age_sent(message: Message, state: FSMContext):
-    await state.update_data(count=message.text)
-    await message.answer(text='Вы уверены')
     await state.set_state(FSMFillForm.fill_break)
+
+
+@router_admin.message(StateFilter(FSMFillForm.fill_break))
+async def process_age_sent(message: Message):
+    await message.answer(text='Вы уверены, что хотите добавить это товар?', reply_markup=kb_confirmation)
+
+
+@router_admin.message(F.data == 'confirmed')
+async def append_item(callback: CallbackQuery, state: FSMContext):
+    global new_name, new_cost
+    await callback.message.edit_text(text=f'Товар был добавлен')
+    c.execute("INSERT INTO products VALUES (new_name, new_cost)")
+    await state.clear()
+
+
+@router_admin.message(F.data == 'canceled')
+async def skip_item(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text(text=f'Товар не был добавлен')
+    await state.clear()

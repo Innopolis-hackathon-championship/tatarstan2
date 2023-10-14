@@ -11,11 +11,6 @@ make_an_order_button = InlineKeyboardButton(
     callback_data='make_an_order_button_pressed'
 )
 
-balance_button = InlineKeyboardButton(
-    text='Баланс',
-    callback_data='balance_button_pressed'
-)
-
 feedback_button = InlineKeyboardButton(
     text='Отзывы',
     callback_data='feedback_button_pressed'
@@ -34,8 +29,7 @@ get_feedback_button = InlineKeyboardButton(
 
 
 kb_main_builder = InlineKeyboardBuilder()
-kb_main_builder.row(make_an_order_button, width=1)
-kb_main_builder.row(*[balance_button, feedback_button], width=2)
+kb_main_builder.row(*[make_an_order_button, feedback_button], width=1)
 
 
 kb_feedback_builder = InlineKeyboardBuilder()

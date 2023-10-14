@@ -36,15 +36,15 @@ async def get_info(product_id) -> list:
         return res
 
 
-async def validation(tg_id):
+async def validation(tg_id) -> bool:
     async with aiosqlite.connect("users_db.sqlite") as con:
         cursor = await con.execute("SELECT user_id FROM users")
         result = await cursor.fetchall()
         await cursor.close()
         if (tg_id,) in result:
-            return 1
+            return True
         else:
-            return 0
+            return False
 
 
 async def get_menu_buttons() -> dict:
@@ -78,10 +78,17 @@ async def get_balance(tg_id):
         await cursor.close()
         return result
 
-# async def main():
-#     result = await get_balance(846030183)
-#     print(result[0])
-#
-#
-#
-# asyncio.run(main())
+
+async def get_product_name(id):
+    async with aiosqlite.connect("menu.sqlite") as con:
+        cursor = await con.execute(f"SELECT name FROM products WHERE product_id=VALUE (?)", (id,))
+        result = await cursor.fetchone()
+        await cursor.close()
+        return result[0]
+
+async def main():
+    result = await get_product_name(2)
+    print(result)
+
+
+asyncio.run(main())

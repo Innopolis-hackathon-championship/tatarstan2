@@ -1,10 +1,8 @@
-from unittest.mock import call
-
 from aiogram import F
 from aiogram.dispatcher.router import Router
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
-from database.interaction_with_db import get_balance
+from database.interaction_with_db import get_balance, get_product_name
 from filters.get_access import IsAllowed
 from keyboards.user_keyboards import kb_main_builder, kb_feedback_builder, kb_balance_builder
 from lexicon.lexicon_ru import LEXICON_RU
@@ -22,12 +20,18 @@ async def feedback_button_pressed(callback: CallbackQuery):
     await callback.message.edit_text(text='тут будет текст для фидбэка', reply_markup=kb_feedback_builder.as_markup())
 
 
-@router_user.callback_query(F.data == 'balance_button_pressed', lambda call: True)
-async def feedback_button_pressed(callback: CallbackQuery):
-    bill = await get_balance(call.from_user.id)
-    print(type(callback.message.from_user.id), call.from_user.id)
-    await callback.message.edit_text(text=f'Ваш баланс составляет {bill}',
-                                     reply_markup=kb_balance_builder.as_markup())
+@router_user.message(Command('balance'), IsAllowed())
+async def process_balance_command(message: Message):
+    balance = await get_balance(message.from_user.id)
+    await message.answer(text=f"Ваш текущий баланс: {balance[0]}")
+
+
+@router_user.message(Command('buy'), IsAllowed())
+async def process_balance_command(message: Message):
+    arguments = message.text.split()
+    print(get_product_name(arguments[1]))
+    print(arguments[1])
+    await message.answer(text=f" добавлен в корзину")
 
 
 @router_user.callback_query(F.data == 'home_button_pressed')
